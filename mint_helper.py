@@ -1,5 +1,6 @@
 import csv
 import os
+import datetime
 
 def main():
     
@@ -23,30 +24,46 @@ def main():
     
     
     path = r'C:\Users\Andrew\Downloads'
-    file_name = 'jan_2019_transactions.csv'
+    work_path = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
     
-    titles, data = import_file(path, file_name) #get csv data from mint
+    file_name = 'transactions.csv'
+    output_fl_name = 'output.csv'
+    location  = os.path.join(path, file_name)
+    
+    try: #test to see where I am running this, at work or at home?
+        f = open(location) #https://stackoverflow.com/questions/34399172/why-does-my-python-code-print-the-extra-characters-%C3%AF-when-reading-from-a-tex
+        f.close()
+        
+    except FileNotFoundError:
+        path = work_path
+        location  = os.path.join(work_path, file_name)
+    
+    
+    titles, data = import_file(location, work_path, file_name) #get csv data from mint
     
     data = manipulate_data(titles, data) #perform calculations on data
     
     summary_table = summarize(pay_from_accounts, titles, data) #create a summary table based on accounts
     
-    output_results(summary_table) #output data into new csv file
+    output_results(summary_table, path) #output data into new csv file
+    
+    rename_file(file_name, path, 'transactions-')
+    rename_file(output_fl_name, path, 'transaction_summary-')
     
 
-def import_file(path, file_name):
-    location  = os.path.join(path, file_name)
+def import_file(location, bckup_path, file_name):
     fields = []
     rows = []
     
-    f = open(location, encoding='utf-8-sig') #https://stackoverflow.com/questions/34399172/why-does-my-python-code-print-the-extra-characters-%C3%AF-when-reading-from-a-tex
+    f = open(location, encoding='utf-8-sig')
+    
     csv_f = csv.reader(f)
     fields = next(csv_f)
     #print(fields)
     
     for row in csv_f:
         rows.append(row)
-        
+           
     f.close()
         
     return fields, rows
@@ -95,9 +112,9 @@ def summarize(accounts, columns, rows):
     
     return summary_dict
 
-def output_results(expense_dict):
+def output_results(expense_dict, path):
     
-    with open('output.csv', 'w', newline='') as csvfile:
+    with open(path + '\output.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Category', 'Total Expenses', 'Account to Pay'])
         for data in expense_dict.items():
@@ -112,47 +129,15 @@ def output_results(expense_dict):
             #print(account)
         
     csvfile.close()
-            
-        
-
-def tests():
     
     
-    #testing import_file
-    path = r'C:\Users\Andrew\Downloads'
-    file_name = 'jan_2019_transactions.csv'
-    pay_from_accounts = {
-                    'Apartment Cushion':'3756', 
-                    'Gifts':'3729', 
-                    'From Us Gifts':'3699', 
-                    'End of Yr Staff Tip':'8490', 
-                    'From Us Apartment':'0498', 
-                    'From Us Vacation':'4728', 
-                    'From Us Wedding':'0923', 
-                    'Golf-Ski Seasons':'6886', 
-                    'Big Weekends':'4116', 
-                    'My Vacations':'6768', 
-                    'New Years 2017':'3701', 
-                    'Big Purchase':'3738', 
-                    'Holding Acct':'8347', 
-                    'WF Checking':'7027',
-                    'WF Savings':'4969'
-                    }
-    
-    
-    titles, data = import_file(path, file_name)
-    assert titles == ['Date', 'Description', 'Original Description', 'Amount', 'Transaction Type', 'Category', 'Account Name', 'Labels', 'Notes']
-    
-    #testing manipulate_data
-    data = manipulate_data(titles, data)
-    
-    #testing summaize
-    summary = summarize(pay_from_accounts, titles, data)
-    #print(summary)
-    
-    output_results(summary)
-    
-    
-    print('tests done')
+def rename_file(file_name, path, new_name):
+    #rename file
+    location  = os.path.join(path, file_name)
+    today = datetime.date.today()
+    today = str(today.month - 1) + '_' + str(today.year)
+    new_name = new_name + today + '.csv'
+    new_loc = os.path.join(path, new_name)
+    os.rename(location, new_loc)
     
 main()
