@@ -22,6 +22,55 @@ def main():
                     'WF Savings':'4969'
                     }
     
+    ignore_categories = ['Hide from Budgets & Trends', 'Transfer', 'Credit Card Payment']
+    
+    maj_cat = [
+            'Mortgage & Rent', 'Food & Dining', 'Travel',
+            'Shopping', 'Personal Care', 'Entertainment', 'Bills & Utilities',
+            'Misc Expenses', 'Health & Fitness'
+            ]
+    
+    cat_to_maj_cat_map = {
+            'Alcohol & Bars':'Food & Dining', 
+            'Coffee Shops':'Food & Dining', 
+            'Fast Food':'Food & Dining', 
+            'Groceries':'Food & Dining', 
+            'Restaurants':'Food & Dining', 
+            'Snacks':'Food & Dining', 
+            'Take Out':'Food & Dining', 
+            
+            'Air Travel':'Travel', 
+            'Hotel':'Travel', 
+            'Public Transit':'Travel', 
+            'Rental Car & Taxi':'Travel', 
+            'Vacation':'Travel',
+            
+            'Books':'Shopping',
+            'Clothing':'Shopping',
+            'Electronics & Software':'Shopping',
+            'Hobbies':'Shopping',
+            'Sporting Goods':'Shopping',
+            
+            'Laundry':'Personal Care',
+            
+            'Amusement':'Entertainment',
+            'Movies & DVDs':'Entertainment',
+            'Music':'Entertainment',
+            
+            'Internet':'Bills & Utilities',
+            'Mobile Phone':'Bills & Utilities',
+            'Utilities':'Bills & Utilities',
+            'Television':'Bills & Utilities',
+            
+            'Dentist':'Health & Fitness',
+            'Doctor':'Health & Fitness',
+            'Eyecare':'Health & Fitness',
+            'Gym':'Health & Fitness',
+            'Health Insurance':'Health & Fitness',
+            'Pharmacy':'Health & Fitness',
+            'Sports':'Health & Fitness',
+            }
+    
     
     path = r'C:\Users\Andrew\Downloads'
     work_path = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
@@ -70,7 +119,32 @@ def import_file(location, bckup_path, file_name):
     
     #print(rows)
     
-def manipulate_data(columns, rows):
+def manipulate_data(columns, rows, major_cat_map):
+    '''
+    this function manipulates the transactions by calling sub functions to manipulate specific things
+    '''
+    
+    columns.append('Major Category')
+    
+    for i in range(len(columns)):
+        if columns[i] == 'Amount':
+            amount_col = i
+        if columns[i] == 'Transaction Type':
+            trans_type_col = i
+            
+    for row in rows:
+        amount = row[amount_col]
+        trans_type = row[trans_type_col]
+        #YOU ARE HERE
+        
+    new_rows = signify(columns, rows)
+    
+    
+    
+    return new_rows
+    
+
+def signify(columns, rows):
     #find Amount column
     #change Amount column to a negative or pos number based on 'Transaction Type' column
     
@@ -140,4 +214,13 @@ def rename_file(file_name, path, new_name):
     new_loc = os.path.join(path, new_name)
     os.rename(location, new_loc)
     
-main()
+def tests():
+    #manipulate_data tests
+    headers = [
+            'Date', 'Description', 'Original Description', 'Amount', 
+            'Transaction Type', 'Category', 'Account Name', 'Labels', 'Notes'
+            ]
+    
+#main()
+tests()
+    
