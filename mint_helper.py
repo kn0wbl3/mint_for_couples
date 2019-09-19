@@ -2,9 +2,15 @@ import csv
 import os
 import datetime
 
-def main():
-    
-    pay_from_accounts = {
+"""
+   ____ _     ___  ____    _    _     ____  
+  / ___| |   / _ \| __ )  / \  | |   / ___| 
+ | |  _| |  | | | |  _ \ / _ \ | |   \___ \ 
+ | |_| | |__| |_| | |_) / ___ \| |___ ___) |
+  \____|_____\___/|____/_/   \_|_____|____/ 
+"""
+
+PAY_FROM_ACCOUNTS = {
                     'Apartment Cushion':'3756', 
                     'Gifts':'3729', 
                     'From Us Gifts':'3699', 
@@ -18,38 +24,70 @@ def main():
                     'New Years 2017':'3701', 
                     'Big Purchase':'3738', 
                     'Holding Acct':'8347', 
-                    'WF Checking':'7027',
-                    'WF Savings':'4969'
+                    'Main Checking':'7027',
+                    'Main Savings':'4969'
                     }
+
+HOME_PATH = r'C:\Users\Andrew\Downloads'
+WORK_PATH = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
+FILE_NAME = 'transactions.csv'
+OUTPUT_FILE_NAME = 'output.csv'
+
+"""
+  __  __    _    ___ _   _ 
+ |  \/  |  / \  |_ _| \ | |
+ | |\/| | / _ \  | ||  \| |
+ | |  | |/ ___ \ | || |\  |
+ |_|  |_/_/   \_|___|_| \_|
+"""
+
+def main():
+    global HOME_PATH
+    global WORK_PATH
+    global FILE_NAME
+    global PAY_FROM_ACCOUNTS
+    global FILE_NAME
+    global OUTPUT_FILE_NAME
     
-    
-    path = r'C:\Users\Andrew\Downloads'
-    work_path = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
-    
-    file_name = 'transactions.csv'
-    output_fl_name = 'output.csv'
-    location  = os.path.join(path, file_name)
+    location  = os.path.join(HOME_PATH, FILE_NAME)
     
     try: #test to see where I am running this, at work or at home?
-        f = open(location) #https://stackoverflow.com/questions/34399172/why-does-my-python-code-print-the-extra-characters-%C3%AF-when-reading-from-a-tex
+        f = open(location)
+        path = HOME_PATH
         f.close()
         
     except FileNotFoundError:
-        path = work_path
-        location  = os.path.join(work_path, file_name)
+        location  = os.path.join(WORK_PATH, FILE_NAME)
+        path = WORK_PATH
     
     
-    titles, data = import_file(location, work_path, file_name) #get csv data from mint
+    #get csv data from mint
+    titles, data = import_file(location, WORK_PATH, FILE_NAME)
     
-    data = manipulate_data(titles, data) #perform calculations on data
+    #perform calculations on data
+    data = manipulate_data(titles, data) 
     
-    summary_table = summarize(pay_from_accounts, titles, data) #create a summary table based on accounts
+    #create a summary table based on accounts
+    summary_table = summarize(PAY_FROM_ACCOUNTS, titles, data) 
     
-    output_results(summary_table, path) #output data into new csv file
+    #output data into new csv file
+    output_results(summary_table, path) 
     
-    rename_file(file_name, path, 'transactions-')
-    rename_file(output_fl_name, path, 'transaction_summary-')
-    
+    rename_file(FILE_NAME, path, 'transactions-')
+    rename_file(OUTPUT_FILE_NAME, path, 'transaction_summary-')
+
+
+"""
+  ____  _   _ ____  ____   ___  ____ _____ ___ _   _  ____ 
+ / ___|| | | |  _ \|  _ \ / _ \|  _ |_   _|_ _| \ | |/ ___|
+ \___ \| | | | |_) | |_) | | | | |_) || |  | ||  \| | |  _ 
+  ___) | |_| |  __/|  __/| |_| |  _ < | |  | || |\  | |_| |
+ |____/ \___/|_|  _|_|___ \___/|_|_\_\|_|_|___|_|_\_|\____|
+ |  ___| | | | \ | |/ ___|_   _|_ _/ _ \| \ | / ___|       
+ | |_  | | | |  \| | |     | |  | | | | |  \| \___ \       
+ |  _| | |_| | |\  | |___  | |  | | |_| | |\  |___) |      
+ |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|____/
+"""
 
 def import_file(location, bckup_path, file_name):
     fields = []
@@ -70,9 +108,11 @@ def import_file(location, bckup_path, file_name):
     
     #print(rows)
     
+# ----------------------------------------------------------------------------
 def manipulate_data(columns, rows):
     #find Amount column
-    #change Amount column to a negative or pos number based on 'Transaction Type' column
+    #change Amount column to a negative or pos number 
+    #based on 'Transaction Type' column
     
     for i in range(len(columns)):
         if columns[i] == 'Amount':
@@ -91,6 +131,7 @@ def manipulate_data(columns, rows):
             
     return rows
 
+# ----------------------------------------------------------------------------
 def summarize(accounts, columns, rows):
     summary_dict = {'My Expenses': [0, '7027'], 'Venture': [0, '7027']}
     
@@ -104,14 +145,19 @@ def summarize(accounts, columns, rows):
             
     for row in rows:
         if (row[acct_name_col] == 'Venture') and (row[labels_col] == ''):
-            summary_dict['Venture'][0] += (row[amount_col] / 2) #split between me and liz
+            #split between me and liz
+            summary_dict['Venture'][0] += (row[amount_col] / 2) 
         elif row[labels_col] == '':
             summary_dict['My Expenses'][0] += row[amount_col]
         else:
-            summary_dict[row[labels_col]] = [(summary_dict.get(row[labels_col][0], 0) + row[amount_col]), accounts[row[labels_col]]]
+            summary_dict[row[labels_col]] = [
+                    (summary_dict.get(row[labels_col][0], 0) + 
+                     row[amount_col]), accounts[row[labels_col]]
+                    ]
     
     return summary_dict
 
+# ----------------------------------------------------------------------------
 def output_results(expense_dict, path):
     
     with open(path + '\output.csv', 'w', newline='') as csvfile:
@@ -130,7 +176,7 @@ def output_results(expense_dict, path):
         
     csvfile.close()
     
-    
+# ----------------------------------------------------------------------------  
 def rename_file(file_name, path, new_name):
     #rename file
     location  = os.path.join(path, file_name)
@@ -140,4 +186,6 @@ def rename_file(file_name, path, new_name):
     new_loc = os.path.join(path, new_name)
     os.rename(location, new_loc)
     
-main()
+# ----------------------------------------------------------------------------
+if __name__ == "__main__":
+    main()
