@@ -28,6 +28,11 @@ PAY_FROM_ACCOUNTS = {
                     'Main Savings':'4969'
                     }
 
+HEADERS = set(["Date", "Description", "Original Description", 
+              "Amount", "Transaction Type", "Category", "Account Name",
+              "Labels", "Notes"
+              ])
+
 HOME_PATH = r'C:\Users\Andrew\Downloads'
 WORK_PATH = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
 FILE_NAME = 'transactions.csv'
@@ -62,13 +67,13 @@ def main():
     
     
     #get csv data from mint
-    titles, data = import_file(location, WORK_PATH, FILE_NAME)
+    headers, raw_data = import_file(location)
     
     #perform calculations on data
-    data = manipulate_data(titles, data) 
+    cleaned_data = manipulate_data(headers, raw_data) 
     
     #create a summary table based on accounts
-    summary_table = summarize(PAY_FROM_ACCOUNTS, titles, data) 
+    summary_table = summarize(PAY_FROM_ACCOUNTS, headers, cleaned_data) 
     
     #output data into new csv file
     output_results(summary_table, path) 
@@ -89,27 +94,32 @@ def main():
  |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|____/
 """
 
-def import_file(location, bckup_path, file_name):
-    fields = []
+def import_file(location):
+    """
+    input: location of raw csv data
+    output: returns the columns and rows of data in lists
+    """
+    headers = []
     rows = []
     
     f = open(location, encoding='utf-8-sig')
     
     csv_f = csv.reader(f)
-    fields = next(csv_f)
-    #print(fields)
+    headers = next(csv_f)
     
     for row in csv_f:
         rows.append(row)
            
     f.close()
         
-    return fields, rows
-    
-    #print(rows)
-    
+    return headers, rows
 # ----------------------------------------------------------------------------
+
 def manipulate_data(columns, rows):
+    """
+    input: columns and rows as lists
+    will 
+    """
     #find Amount column
     #change Amount column to a negative or pos number 
     #based on 'Transaction Type' column
@@ -121,17 +131,14 @@ def manipulate_data(columns, rows):
             trans_type_col = i
     
     for row in rows:
-        #print(row[amount_col])
-        #print(row[trans_type_col])
-        
         if row[trans_type_col] == 'debit':
             row[amount_col] = -float(row[amount_col])
         else:
             row[amount_col] = float(row[amount_col])
             
     return rows
-
 # ----------------------------------------------------------------------------
+
 def summarize(accounts, columns, rows):
     summary_dict = {'My Expenses': [0, '7027'], 'Venture': [0, '7027']}
     
@@ -156,8 +163,8 @@ def summarize(accounts, columns, rows):
                     ]
     
     return summary_dict
-
 # ----------------------------------------------------------------------------
+
 def output_results(expense_dict, path):
     
     with open(path + '\output.csv', 'w', newline='') as csvfile:
@@ -175,8 +182,8 @@ def output_results(expense_dict, path):
             #print(account)
         
     csvfile.close()
-    
-# ----------------------------------------------------------------------------  
+# ---------------------------------------------------------------------------- 
+
 def rename_file(file_name, path, new_name):
     #rename file
     location  = os.path.join(path, file_name)
@@ -185,7 +192,7 @@ def rename_file(file_name, path, new_name):
     new_name = new_name + today + '.csv'
     new_loc = os.path.join(path, new_name)
     os.rename(location, new_loc)
-    
 # ----------------------------------------------------------------------------
+
 if __name__ == "__main__":
     main()
