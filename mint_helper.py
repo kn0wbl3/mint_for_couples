@@ -8,6 +8,7 @@ import datetime
  | |  _| |  | | | |  _ \ / _ \ | |   \___ \ 
  | |_| | |__| |_| | |_) / ___ \| |___ ___) |
   \____|_____\___/|____/_/   \_|_____|____/ 
+  
 """
 
 PAY_FROM_ACCOUNTS = {
@@ -44,6 +45,7 @@ OUTPUT_FILE_NAME = 'output.csv'
  | |\/| | / _ \  | ||  \| |
  | |  | |/ ___ \ | || |\  |
  |_|  |_/_/   \_|___|_| \_|
+ 
 """
 
 def main():
@@ -92,6 +94,7 @@ def main():
  | |_  | | | |  \| | |     | |  | | | | |  \| \___ \       
  |  _| | |_| | |\  | |___  | |  | | |_| | |\  |___) |      
  |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|____/
+ 
 """
 
 def import_file(location):
@@ -102,17 +105,21 @@ def import_file(location):
     headers = []
     rows = []
     
-    f = open(location, encoding='utf-8-sig')
-    
-    csv_f = csv.reader(f)
-    headers = next(csv_f)
-    
-    for row in csv_f:
-        rows.append(row)
-           
-    f.close()
+    try:
+        f = open(location, encoding='utf-8-sig')
         
-    return headers, rows
+        csv_f = csv.reader(f)
+        headers = next(csv_f)
+    
+        for row in csv_f:
+            rows.append(row)
+           
+            f.close()
+        
+        return headers, rows
+    
+    except FileNotFoundError:
+        raise FileNotFoundError("No file found. Aborting.")
 # ----------------------------------------------------------------------------
 
 def manipulate_data(columns, rows):
