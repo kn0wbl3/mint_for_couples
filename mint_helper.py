@@ -12,27 +12,34 @@ import datetime
 """
 
 PAY_FROM_ACCOUNTS = {
-                    'Apartment Cushion':'3756', 
-                    'Gifts':'3729', 
-                    'From Us Gifts':'3699', 
-                    'End of Yr Staff Tip':'8490', 
-                    'From Us Apartment':'0498', 
-                    'From Us Vacation':'4728', 
-                    'From Us Wedding':'0923', 
-                    'Golf-Ski Seasons':'6886', 
-                    'Big Weekends':'4116', 
-                    'My Vacations':'6768', 
-                    'New Years 2017':'3701', 
-                    'Big Purchase':'3738', 
-                    'Holding Acct':'8347', 
-                    'Main Checking':'7027',
-                    'Main Savings':'4969'
-                    }
+    'Apartment Cushion':'3756', 
+    'Gifts':'3729', 
+    'From Us Gifts':'3699', 
+    'End of Yr Staff Tip':'8490', 
+    'From Us Apartment':'0498', 
+    'From Us Vacation':'4728', 
+    'From Us Wedding':'0923', 
+    'Golf-Ski Seasons':'6886', 
+    'Big Weekends':'4116', 
+    'My Vacations':'6768', 
+    'New Years 2017':'3701', 
+    'Big Purchase':'3738', 
+    'Holding Acct':'8347', 
+    'Main Checking':'7027',
+    'Main Savings':'4969'
+}
 
-HEADERS = set(["Date", "Description", "Original Description", 
-              "Amount", "Transaction Type", "Category", "Account Name",
-              "Labels", "Notes"
-              ])
+HEADERS = set([
+    "Date",
+    "Description",
+    "Original Description",
+    "Amount",
+    "Transaction Type",
+    "Category",
+    "Account Name",
+    "Labels",
+    "Notes"
+])
 
 HOME_PATH = r'C:\Users\Andrew\Downloads'
 WORK_PATH = r'C:\Users\amanuele2\AppData\Local\Temp\Bloomberg\data'
@@ -53,13 +60,13 @@ def main():
     global WORK_PATH
     global FILE_NAME
     global PAY_FROM_ACCOUNTS
-    global FILE_NAME
     global OUTPUT_FILE_NAME
+    global HEADERS
     
     location  = os.path.join(HOME_PATH, FILE_NAME)
     
     try: #test to see where I am running this, at work or at home?
-        f = open(location)
+        f = open(location, encoding='utf-8-sig')
         path = HOME_PATH
         f.close()
         
@@ -114,7 +121,7 @@ def import_file(location):
         for row in csv_f:
             rows.append(row)
            
-            f.close()
+        f.close()
         
         return headers, rows
     
@@ -124,8 +131,14 @@ def import_file(location):
 
 def manipulate_data(columns, rows):
     """
-    input: columns and rows as lists
-    will 
+    input: columns 
+    type: list
+    
+    input: rows
+    type: list
+    
+    sub-main function that will call other sub functions to manipulate the
+    raw data and return a cleaned version
     """
     #find Amount column
     #change Amount column to a negative or pos number 
